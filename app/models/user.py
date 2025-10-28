@@ -1,10 +1,13 @@
 from sqlalchemy import Column, Integer, String, Enum
+from sqlalchemy.orm import relationship
 from app.db.base import Base
 import enum
+
 
 class UserRole(enum.Enum):
     student = "student"
     business = "business"
+
 
 class User(Base):
     __tablename__ = "users"
@@ -14,3 +17,6 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
     role = Column(Enum(UserRole), nullable=False, default=UserRole.student)
+
+    # Relationships
+    reviews = relationship("Review", back_populates="user")
