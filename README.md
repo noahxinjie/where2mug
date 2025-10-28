@@ -13,7 +13,7 @@ A full-stack application for discovering and sharing study spots. Built with Fas
 ## Project Structure
 
 ```
-where2mug_backend/
+where2mug/
 ├── app/                    # FastAPI backend
 │   ├── core/              # Configuration
 │   ├── db/                # Database setup
@@ -37,7 +37,7 @@ where2mug_backend/
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/where2mug_backend.git
+   git clone https://github.com/yourusername/where2mug.git
    cd where2mug_backend
    ```
 
@@ -60,10 +60,10 @@ where2mug_backend/
 4. **Run the FastAPI server**
 
    ```bash
-   uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+   uvicorn app.main:app --reload --host localhost --port 8000
    ```
 
-   Access the API documentation at: http://127.0.0.1:8000/docs
+   Access the API documentation at: http://localhost:8000/docs
 
 ### Frontend Setup
 
