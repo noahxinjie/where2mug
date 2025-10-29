@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { User, UserCreate, StudySpot, StudySpotCreate, Review, ReviewCreate } from '../types';
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+// const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
