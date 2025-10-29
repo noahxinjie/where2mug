@@ -11,7 +11,11 @@ class Settings(BaseSettings):
     def DATABASE_URL(self) -> str:
         return f"postgresql+psycopg2://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
-    class Config:
-        env_file = ".env"
+    
+    model_config = {
+        "env_file": "app/.env",     
+        "extra": "ignore",   
+    }
+
 
 settings = Settings()
