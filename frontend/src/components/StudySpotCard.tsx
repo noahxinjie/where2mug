@@ -6,9 +6,10 @@ import { MapPinIcon as MapPinIconOutline } from '@heroicons/react/24/outline';
 interface StudySpotCardProps {
   spot: StudySpot;
   onViewDetails?: (spot: StudySpot) => void;
+  onWriteReview?: (spot: StudySpot) => void;
 }
 
-const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails }) => {
+const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails, onWriteReview }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
@@ -65,7 +66,8 @@ const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails }) =>
           >
             View Details
           </button>
-          <button className="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors">
+          <button onClick={() => onWriteReview?.(spot)} 
+          className="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors">
             Write Review
           </button>
         </div>
