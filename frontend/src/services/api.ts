@@ -14,6 +14,8 @@ const api = axios.create({
 export const userApi = {
   create: (user: UserCreate) => api.post<User>('/users/', user),
   list: () => api.get<User[]>('/users/'),
+  login: (credentials: { email: string; password: string }) =>
+    api.post<User>('/users/login', credentials), // JSON payload
 };
 
 // Study Spot API

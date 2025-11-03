@@ -61,12 +61,22 @@ const StudySpotList: React.FC = () => {
   if (!selectedSpot) return;
   setSubmitting(true);
   setModalError(null);
+
+  const storedUser = localStorage.getItem('user');
+  const userId = storedUser ? JSON.parse(storedUser).id : null;
+
+  if (!userId) {
+    setModalError('You must be logged in to submit a review.');
+    setSubmitting(false);
+    return;
+  }
+
   try {
     const reviewData: ReviewCreate = {
       studyspot_id: selectedSpot.id,
       comment: newComment,
       rating: newRating,
-      user_id: 1, // replace with logged-in user ID
+      user_id: userId, // replace with logged-in user ID
     };
     const response = await reviewApi.create(reviewData);
     console.log('Review submitted:', response.data);
@@ -194,7 +204,13 @@ const StudySpotList: React.FC = () => {
             </div>
             <div className="flex justify-end space-x-2">
               <button
-                onClick={() => setIsModalOpen(false)}
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setSelectedSpot(null);
+                    setNewComment('');
+                    setNewRating(5);
+                    setModalError(null);
+                  }}
                 className="px-3 py-1 rounded-md bg-gray-300 hover:bg-gray-400"
               >
                 Cancel
