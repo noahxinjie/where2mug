@@ -20,6 +20,7 @@ export const userApi = {
 export const studySpotApi = {
   create: (spot: StudySpotCreate) => api.post<StudySpot>('/studyspots/', spot),
   list: () => api.get<StudySpot[]>('/studyspots/'),
+  get: (id: string | number) => api.get<StudySpot>(`/studyspots/${id}`),
 };
 
 // Review API

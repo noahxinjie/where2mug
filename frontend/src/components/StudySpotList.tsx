@@ -4,6 +4,7 @@ import { studySpotApi } from '../services/api';
 import StudySpotCard from './StudySpotCard';
 import StudySpotMap from './StudySpotMap';
 import { MagnifyingGlassIcon, MapIcon, ListBulletIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
 
 const StudySpotList: React.FC = () => {
   const [spots, setSpots] = useState<StudySpot[]>([]);
@@ -11,6 +12,7 @@ const StudySpotList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchSpots();
@@ -37,6 +39,7 @@ const StudySpotList: React.FC = () => {
   const handleViewDetails = (spot: StudySpot) => {
     // TODO: Implement spot details modal or navigation
     console.log('View details for:', spot);
+    navigate(`/studyspots/${spot.id}`);
   };
 
   if (loading) {

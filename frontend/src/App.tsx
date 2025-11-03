@@ -4,6 +4,7 @@ import Header from './components/Header';
 import StudySpotList from './components/StudySpotList';
 import AddStudySpot from './components/AddStudySpot';
 import UserRegistration from './components/UserRegistration';
+import StudySpotDetailsPage from './components/StudySpotDetailsPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             <Route path="/" element={<StudySpotList />} />
             <Route path="/add-spot" element={<AddStudySpot />} />
             <Route path="/register" element={<UserRegistration />} />
+            <Route path="/studyspots/:id" element={<StudySpotDetailsPage />} />
           </Routes>
         </main>
       </div>
