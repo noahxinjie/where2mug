@@ -20,7 +20,7 @@ interface StudySpotMapProps {
 
 const StudySpotMap: React.FC<StudySpotMapProps> = ({ 
   spots, 
-  center = [40.7128, -74.0060], // Default to NYC
+  center = [1.3521, 103.8198], // Default to Singapore
   zoom = 13 
 }) => {
   return (
