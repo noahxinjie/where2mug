@@ -3,7 +3,9 @@ from enum import Enum
 
 class SpotStatus(str, Enum):
     pending = "pending"
-    valid = "valid"
+    active = "active"
+    closed = "closed"
+
 
 class StudySpotBase(BaseModel):
     name: str
