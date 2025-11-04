@@ -1,5 +1,6 @@
-import React from 'react';
-import { StudySpot } from '../types';
+import React, { useEffect, useState } from 'react';
+import { StudySpot, Review } from '../types';
+import { reviewApi } from '../services/api';
 import { MapPinIcon, StarIcon } from '@heroicons/react/24/solid';
 import { MapPinIcon as MapPinIconOutline } from '@heroicons/react/24/outline';
 
@@ -10,6 +11,31 @@ interface StudySpotCardProps {
 }
 
 const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails, onWriteReview }) => {
+  const [avgRating, setAvgRating] = useState<number | null>(null);
+  const [reviewCount, setReviewCount] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await reviewApi.listBySpot(spot.id);
+        const reviews: Review[] = response.data;
+
+        if (reviews.length > 0) {
+          const total = reviews.reduce((sum, r) => sum + r.rating, 0);
+          setAvgRating(total / reviews.length);
+          setReviewCount(reviews.length);
+        } else {
+          setAvgRating(null);
+          setReviewCount(0);
+        }
+      } catch (err) {
+        console.error('Failed to load reviews for study spot', spot.id, err);
+      }
+    };
+
+    fetchReviews();
+  }, [spot.id]);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
@@ -52,8 +78,13 @@ const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails, onWr
               
               <div className="flex items-center text-sm text-gray-500">
                 <StarIcon className="h-4 w-4 text-yellow-400 mr-1" />
-                <span>4.2</span>
-                <span className="ml-1">(12 reviews)</span>
+                {reviewCount > 0 ? (
+                  <> <span>{avgRating?.toFixed(1)}</span>
+                    <span className="ml-1">({reviewCount} reviews)</span>
+                  </>
+                ) : (
+                  <span>No reviews</span>
+                )}
               </div>
             </div>
           </div>
