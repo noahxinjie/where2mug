@@ -20,3 +20,10 @@ def create_study_spot(spot: StudySpotCreate, db: Session = Depends(get_db)):
 @router.get("/", response_model=list[StudySpotOut])
 def list_study_spots(db: Session = Depends(get_db)):
     return db.query(StudySpot).all()
+
+@router.get("/{spot_id}", response_model=StudySpotOut)
+def get_study_spot(spot_id: int, db: Session = Depends(get_db)):
+    spot = db.query(StudySpot).filter(StudySpot.id == spot_id).first()
+    if not spot:
+        raise HTTPException(status_code=404, detail="Study spot not found")
+    return spot
