@@ -10,6 +10,7 @@
 
 # Frontend files
 frontend/build.tar.gz
+frontend/src/.backups/
 
 # Others
 source
