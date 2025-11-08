@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from enum import Enum
+from typing import Optional
 
 class SpotStatus(str, Enum):
     pending = "pending"
@@ -20,6 +21,7 @@ class StudySpotCreate(StudySpotBase):
 
 class StudySpotOut(StudySpotBase):
     id: int
+    active_checkins: Optional[int] = 0  
 
     class Config:
         from_attributes = True

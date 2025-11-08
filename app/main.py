@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes.v1 import users_routes, studyspots_routes, reviews_routes
+from app.routes.v1 import users_routes, studyspots_routes, reviews_routes, checkin_routes
 from app.db.base import Base
 from app.db.session import engine
 from dotenv import load_dotenv
@@ -40,3 +40,4 @@ app.include_router(
     studyspots_routes.router, prefix="/api/v1/studyspots", tags=["Study Spots"]
 )
 app.include_router(reviews_routes.router, prefix="/api/v1/reviews", tags=["Reviews"])
+app.include_router(checkin_routes.router, prefix="/api/v1/checkin", tags=["Checkin"])

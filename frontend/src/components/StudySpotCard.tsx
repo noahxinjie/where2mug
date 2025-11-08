@@ -75,7 +75,7 @@ const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails, onWr
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(spot.status)}`}>
                 {spot.status.charAt(0).toUpperCase() + spot.status.slice(1)}
               </span>
-              
+
               <div className="flex items-center text-sm text-gray-500">
                 <StarIcon className="h-4 w-4 text-yellow-400 mr-1" />
                 {reviewCount > 0 ? (
@@ -86,6 +86,10 @@ const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails, onWr
                   <span>No reviews</span>
                 )}
               </div>
+            </div>
+
+            <div className="text-sm text-gray-500 mt-2">
+              Currently Check-ins: <span className="font-medium">{spot.active_checkins}</span>
             </div>
           </div>
         </div>

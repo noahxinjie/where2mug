@@ -20,3 +20,4 @@ class User(Base):
 
     # Relationships
     reviews = relationship("Review", back_populates="user")
+    checkin = relationship("Checkin", back_populates="user")
