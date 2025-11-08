@@ -1,12 +1,16 @@
 # Environment files
-.env
 **/.env
-app/.env
-frontend/.env
 
 # Python virtual environment
-venv/
-env/
+**/venv/
+**/env/
 
 # Python cache
 **/__pycache__/
+
+# Frontend files
+frontend/build.tar.gz
+
+# Others
+source
+
