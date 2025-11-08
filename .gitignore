@@ -1,2 +1,12 @@
+# Environment files
 .env
+**/.env
+app/.env
+frontend/.env
+
+# Python virtual environment
+venv/
+env/
+
+# Python cache
 **/__pycache__/
