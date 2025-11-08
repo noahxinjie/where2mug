@@ -13,6 +13,7 @@ class StudySpotBase(BaseModel):
     latitude: float
     longitude: float
     status: SpotStatus = SpotStatus.pending
+    description: str | None = None
 
 class StudySpotCreate(StudySpotBase):
     pass
