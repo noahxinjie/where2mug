@@ -91,10 +91,14 @@ where2mug/
 
 - `GET /api/v1/studyspots/` - List all study spots
 - `POST /api/v1/studyspots/` - Create a new study spot
+- `POST /api/v1/studyspots/${id}` - Retrieve study spot details based on id
 - `GET /api/v1/users/` - List all users
 - `POST /api/v1/users/` - Create a new user
+- `POST /api/v1/users/login` - User login
 - `GET /api/v1/reviews/` - List all reviews
 - `POST /api/v1/reviews/` - Create a new review
+- `GET /api/v1/reviews/by-spot/${spotId}` - List all reviews for a study spot
+
 
 ## Tech Stack
 
