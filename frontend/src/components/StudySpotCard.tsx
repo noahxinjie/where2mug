@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StudySpot, Review } from '../types';
-import { reviewApi } from '../services/api';
+import { reviewApi, checkinApi } from '../services/api';
 import { MapPinIcon, StarIcon } from '@heroicons/react/24/solid';
 import { MapPinIcon as MapPinIconOutline } from '@heroicons/react/24/outline';
 
@@ -13,6 +13,8 @@ interface StudySpotCardProps {
 const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails, onWriteReview }) => {
   const [avgRating, setAvgRating] = useState<number | null>(null);
   const [reviewCount, setReviewCount] = useState<number>(0);
+  const [userCheckedIn, setUserCheckedIn] = useState(false);
+  const [spotActiveCheckins, setSpotActiveCheckins] = useState(spot.active_checkins);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -33,8 +35,31 @@ const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails, onWr
       }
     };
 
+    const checkUserCheckin = async () => {
+      const storedUser = localStorage.getItem('user');
+      const userId = storedUser ? JSON.parse(storedUser).id : null;
+      if (!userId) return;
+
+      try {
+        const response = await checkinApi.getUserCheckinStatus(spot.id, userId);
+        setUserCheckedIn(response.is_user_checkin);
+      } catch (err) {
+        console.error('Failed to check active check-ins', err);
+      }
+    };
+
     fetchReviews();
+    checkUserCheckin();
   }, [spot.id]);
+
+  const refreshCurrentCheckins = async () => {
+  try {
+    const response = await checkinApi.getStudySpotCheckinStatus(spot.id); // your endpoint that returns active_checkins
+    setSpotActiveCheckins(response.active_checkins);
+  } catch (err) {
+    console.error("Failed to fetch active check-ins", err);
+  }
+};
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -89,7 +114,7 @@ const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails, onWr
             </div>
 
             <div className="text-sm text-gray-500 mt-2">
-              Currently Check-ins: <span className="font-medium">{spot.active_checkins}</span>
+              Currently Check-ins: <span className="font-medium">{spotActiveCheckins}</span>
             </div>
           </div>
         </div>
@@ -106,6 +131,50 @@ const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails, onWr
             Write Review
           </button>
         </div>
+        {(() => {
+          const storedUser = localStorage.getItem('user');
+          const userId = storedUser ? JSON.parse(storedUser).id : null;
+
+          if (userId && !userCheckedIn) {
+            return (
+              <div className="mt-2">
+                <button onClick={async () => {
+                  try {
+                    await checkinApi.checkIn({ studyspot_id: spot.id, user_id: userId});
+                    setUserCheckedIn(true);
+                    await refreshCurrentCheckins();
+                  } catch (err) {
+                    console.error('Failed to check in', err);
+                  }}}
+                  className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors">
+                          Check In
+                </button>
+              </div>
+              );
+          }
+          
+          if (userId && userCheckedIn) {
+            return (
+              <div className="mt-2">
+                <button onClick={async () => {
+                  try {
+                    await checkinApi.checkOut({ studyspot_id: spot.id, user_id: userId});
+                    setUserCheckedIn(false);
+                    await refreshCurrentCheckins();
+                  } catch (err) {
+                    console.error('Failed to check in', err);
+                  }}}
+                  className="w-full bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors">
+                  Check Out
+                </button>
+              </div>
+              );
+          }
+           return null;  
+        })()}
+
+
+
       </div>
     </div>
   );

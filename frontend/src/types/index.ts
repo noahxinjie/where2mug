@@ -48,3 +48,19 @@ export interface ReviewCreate {
   rating: number;
   comment?: string;
 }
+
+export interface CheckinCreate {
+  studyspot_id: number;
+  user_id: number;
+}
+
+export interface UserCheckinStatusResponse {
+  studyspot_id: number;
+  user_id: number;
+  is_user_checkin: boolean;
+}
+
+export interface StudySpotCheckinResponse {
+  studyspot_id: number;
+  active_checkins: number;
+}

@@ -17,3 +17,7 @@ class CheckinOut(CheckinBase):
 
     class Config:
         from_attributes = True
+
+class UserCheckinRequest(BaseModel):
+    studyspot_id: int
+    user_id: int
