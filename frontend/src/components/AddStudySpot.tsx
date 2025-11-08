@@ -19,6 +19,7 @@ const AddStudySpot: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [formattedAddress, setFormattedAddress] = useState<string>('');
+  const [autocompleteKey, setAutocompleteKey] = useState<number>(0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,6 +72,7 @@ const AddStudySpot: React.FC = () => {
                 Search for Location *
               </label>
               <Autocomplete
+                key={autocompleteKey}
                 apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
                 onPlaceSelected={(place) => {
                   if (place && place.place_id && place.geometry) {
@@ -114,6 +116,7 @@ const AddStudySpot: React.FC = () => {
                     });
                     setSelectedPlace(null);
                     setFormattedAddress('');
+                    setAutocompleteKey(prev => prev + 1);
                   }}
                   className="mt-2 text-sm text-blue-600 hover:text-blue-800"
                 >
