@@ -32,7 +32,7 @@ def list_study_spots(db: Session = Depends(get_db)):
     for spot in spots:
         active_count = (
             db.query(func.count(Checkin.checkin_id))
-            .filter(Checkin.studyspot_id == spot.id, Checkin.checkout_timestamp == None)
+            .filter(Checkin.studyspot_id == spot.id, Checkin.checkout_timestamp.is_(None))
             .scalar()
         )
         spot_data = StudySpotOut.from_orm(spot)
@@ -59,6 +59,7 @@ def search_study_spots(
     lon: Optional[float] = Query(None, description="Longitude of user location"),
     radius_km: float = Query(1.0, description="Search radius in kilometers"),
     min_avg_rating: Optional[int] = Query(None, ge=1, le=5, description="Minimum average rating (1-5)"),
+    min_active_checkins: Optional[int] = Query(None, description="Minimum number of active check-ins (e.g. 10,20,50)"),
     db: Session = Depends(get_db),
 ):
     """Search study spots with optional location/radius filtering and optional minimum average rating."""
@@ -82,6 +83,15 @@ def search_study_spots(
 
     out: list[dict] = []
     for spot, avg_rating in results:
+        # compute active checkins for this spot
+        try:
+            active_count = (
+                db.query(func.count(Checkin.checkin_id))
+                .filter(Checkin.studyspot_id == spot.id, Checkin.checkout_timestamp.is_(None))
+                .scalar()
+            )
+        except Exception:
+            active_count = 0
         # compute accurate distance if location provided
         distance = None
         if lat is not None and lon is not None:
@@ -97,6 +107,11 @@ def search_study_spots(
             if avg is None or avg < float(min_avg_rating):
                 continue
 
+        if min_active_checkins is not None:
+            # exclude spots with fewer active checkins than requested
+            if (active_count or 0) < int(min_active_checkins):
+                continue
+
         out.append({
             "id": spot.id,
             "name": spot.name,
@@ -107,6 +122,7 @@ def search_study_spots(
             "description": spot.description,
             "avg_rating": avg,
             "distance_km": distance,
+            "active_checkins": int(active_count or 0),
         })
 
     # sort by distance if location provided

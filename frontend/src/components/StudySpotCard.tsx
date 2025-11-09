@@ -122,7 +122,7 @@ const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails, onWr
             </div>
 
             <div className="text-sm text-gray-500 mt-2">
-              Currently Check-ins: <span className="font-medium">{spotActiveCheckins}</span>
+              Current Check-ins: <span className="font-medium">{spotActiveCheckins}</span>
             </div>
           </div>
         </div>

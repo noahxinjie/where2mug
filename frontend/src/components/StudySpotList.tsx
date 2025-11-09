@@ -19,6 +19,7 @@ const StudySpotList: React.FC = () => {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [minRatingFilter, setMinRatingFilter] = useState<number | null>(null);
   const [radiusKm, setRadiusKm] = useState<number>(1);
+  const [minCheckinsFilter, setMinCheckinsFilter] = useState<number | null>(null);
   const navigate = useNavigate();
 
     // Modal state
@@ -35,18 +36,18 @@ const StudySpotList: React.FC = () => {
 
   // Refetch when relevant filters change
   useEffect(() => {
-    // Only refetch when either a filter is active; otherwise leave list alone
-    if ((useMyLocation && userLat != null && userLon != null) || minRatingFilter != null) {
-      fetchSpots();
-    }
+    // Refetch whenever any of these filter-related values change. fetchSpots
+    // will call the appropriate backend endpoint (search vs list) based on
+    // currently active filters and location state.
+    fetchSpots();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [radiusKm, minRatingFilter, useMyLocation]);
+  }, [radiusKm, minRatingFilter, minCheckinsFilter, useMyLocation]);
 
   const fetchSpots = async () => {
     try {
       setLoading(true);
-      // If either location filter is active or a min rating is set, use search endpoint
-      if ((useMyLocation && userLat != null && userLon != null) || minRatingFilter != null) {
+  // If either location filter is active or a min rating or min checkins is set, use search endpoint
+  if ((useMyLocation && userLat != null && userLon != null) || minRatingFilter != null || minCheckinsFilter != null) {
         const params: any = {};
         if (useMyLocation && userLat != null && userLon != null) {
           params.lat = userLat;
@@ -55,6 +56,9 @@ const StudySpotList: React.FC = () => {
         }
         if (minRatingFilter != null) {
           params.min_avg_rating = minRatingFilter;
+        }
+        if (minCheckinsFilter != null) {
+          params.min_active_checkins = minCheckinsFilter;
         }
         const response = await studySpotApi.search(params);
         setSpots(response.data);
@@ -253,6 +257,23 @@ const StudySpotList: React.FC = () => {
               <option value={2}>2+</option>
               <option value={3}>3+</option>
               <option value={4}>4+</option>
+            </select>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <label className="text-sm">Min active check-ins:</label>
+            <select
+              value={minCheckinsFilter ?? ''}
+              onChange={(e) => {
+                const v = e.target.value;
+                setMinCheckinsFilter(v === '' ? null : Number(v));
+              }}
+              className="border rounded-md p-1 text-sm"
+            >
+              <option value="">Any</option>
+              <option value={10}>10+</option>
+              <option value={20}>20+</option>
+              <option value={50}>50+</option>
             </select>
           </div>
 
