@@ -1,7 +1,9 @@
 import axios from 'axios';
 import { User, UserCreate, StudySpot, StudySpotCreate, Review, ReviewCreate } from '../types';
 
+// const API_BASE_URL = 'http://localhost:8000/api/v1';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+console.log('API_BASE_URL:', API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -14,8 +16,8 @@ const api = axios.create({
 export const userApi = {
   create: (user: UserCreate) => api.post<User>('/users/', user),
   list: () => api.get<User[]>('/users/'),
-  login: (credentials: { email: string; password: string }) =>
-    api.post<User>('/users/login', credentials), // JSON payload
+  // Login endpoint: POST /users/login -> returns User
+  login: (payload: { email: string; password: string }) => api.post<User>('/users/login', payload),
 };
 
 // Study Spot API
@@ -23,6 +25,9 @@ export const studySpotApi = {
   create: (spot: StudySpotCreate) => api.post<StudySpot>('/studyspots/', spot),
   list: () => api.get<StudySpot[]>('/studyspots/'),
   get: (id: string | number) => api.get<StudySpot>(`/studyspots/${id}`),
+  // Search with optional location/radius and min_avg_rating
+  search: (params: { lat?: number; lon?: number; radius_km?: number; min_avg_rating?: number }) =>
+    api.get<StudySpot[]>('/studyspots/search', { params }),
 };
 
 // Review API
