@@ -1,9 +1,7 @@
 import axios from 'axios';
-import { User, UserCreate, StudySpot, StudySpotCreate, Review, ReviewCreate } from '../types';
+import { User, UserCreate, StudySpot, StudySpotCreate, Review, ReviewCreate, CheckinCreate, StudySpotCheckinResponse, UserCheckinStatusResponse } from '../types';
 
-// const API_BASE_URL = 'http://localhost:8000/api/v1';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-console.log('API_BASE_URL:', API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -38,6 +36,31 @@ export const reviewApi = {
   listByUser: (userId: number) => api.get<Review[]>(`/reviews/by-user/${userId}`),
   update: (reviewId: number, review: ReviewCreate) => api.put<Review>(`/reviews/${reviewId}`, review),
   delete: (reviewId: number) => api.delete(`/reviews/${reviewId}`),
+};
+
+export const checkinApi = {
+  getUserCheckinStatus: async (studyspot_id: number, user_id: number) => {
+    const response = await api.post<UserCheckinStatusResponse>(
+      `/checkin/userCheckinStatus`,
+      { studyspot_id, user_id }
+    );
+    return response.data;
+  },
+
+  checkIn: async (payload: CheckinCreate) => {
+    const response = await api.post(`/checkin/signIn`, payload);
+    return response;
+  },
+
+  checkOut: async (payload: CheckinCreate) => {
+    const response = await api.post(`/checkin/signOut`, payload);
+    return response;
+  },
+
+  getStudySpotCheckinStatus: async (studyspot_id: number) => {
+    const response = await api.post<StudySpotCheckinResponse>(`/checkin/studyspotCheckinStatus/${studyspot_id}`);
+    return response.data;
+  }
 };
 
 export default api;

@@ -23,3 +23,4 @@ class StudySpot(Base):
 
     # Relationships
     reviews = relationship("Review", back_populates="studyspot")
+    checkin = relationship("Checkin", back_populates="studyspot")

@@ -6,6 +6,7 @@ A full-stack application for discovering and sharing study spots. Built with Fas
 
 - **Study Spot Management**: Create, view, and manage study spots
 - **User System**: Registration for students and business owners
+- **Check-in System**: Check in and check out of study spots
 - **Review System**: Rate and review study spots
 - **Interactive Map**: Visualize study spots on a map
 - **Modern UI**: Responsive design with Tailwind CSS
@@ -98,6 +99,10 @@ where2mug/
 - `GET /api/v1/reviews/` - List all reviews
 - `POST /api/v1/reviews/` - Create a new review
 - `GET /api/v1/reviews/by-spot/${spotId}` - List all reviews for a study spot
+- `POST /api/v1/checkin/signIn` - Check in to a study spot
+- `POST /api/v1/checkin/signOut` - Check out from a study spot
+- `POST /api/v1/checkin/userCheckinStatus` - Check whether a user has check in to a study spot
+- `POST /api/v1/checkin/studyspotCheckinStatus/{studyspot_id}` - Check how many users has check in to the study spot
 
 
 ## Tech Stack

@@ -23,6 +23,7 @@ export interface StudySpot {
   description?: string;
   avg_rating?: number;
   distance_km?: number;
+  active_checkins?: number;
 }
 
 export interface StudySpotCreate {
@@ -48,4 +49,20 @@ export interface ReviewCreate {
   user_id: number;
   rating: number;
   comment?: string;
+}
+
+export interface CheckinCreate {
+  studyspot_id: number;
+  user_id: number;
+}
+
+export interface UserCheckinStatusResponse {
+  studyspot_id: number;
+  user_id: number;
+  is_user_checkin: boolean;
+}
+
+export interface StudySpotCheckinResponse {
+  studyspot_id: number;
+  active_checkins: number;
 }
