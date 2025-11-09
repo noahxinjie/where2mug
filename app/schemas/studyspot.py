@@ -25,3 +25,8 @@ class StudySpotOut(StudySpotBase):
 
     class Config:
         from_attributes = True
+
+    # Computed fields (not stored on the model) returned by search endpoints
+    avg_rating: float | None = None
+    distance_km: float | None = None
+    active_checkins: int | None = None

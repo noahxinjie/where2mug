@@ -12,6 +12,14 @@ const StudySpotList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [useMyLocation, setUseMyLocation] = useState(false);
+  const [userLat, setUserLat] = useState<number | null>(null);
+  const [userLon, setUserLon] = useState<number | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [minRatingFilter, setMinRatingFilter] = useState<number | null>(null);
+  const [radiusKm, setRadiusKm] = useState<number>(1);
+  const [minCheckinsFilter, setMinCheckinsFilter] = useState<number | null>(null);
   const navigate = useNavigate();
 
     // Modal state
@@ -26,17 +34,68 @@ const StudySpotList: React.FC = () => {
     fetchSpots();
   }, []);
 
+  // Refetch when relevant filters change
+  useEffect(() => {
+    // Refetch whenever any of these filter-related values change. fetchSpots
+    // will call the appropriate backend endpoint (search vs list) based on
+    // currently active filters and location state.
+    fetchSpots();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [radiusKm, minRatingFilter, minCheckinsFilter, useMyLocation]);
+
   const fetchSpots = async () => {
     try {
       setLoading(true);
-      const response = await studySpotApi.list();
-      setSpots(response.data);
+  // If either location filter is active or a min rating or min checkins is set, use search endpoint
+  if ((useMyLocation && userLat != null && userLon != null) || minRatingFilter != null || minCheckinsFilter != null) {
+        const params: any = {};
+        if (useMyLocation && userLat != null && userLon != null) {
+          params.lat = userLat;
+          params.lon = userLon;
+          params.radius_km = radiusKm; // use selected radius
+        }
+        if (minRatingFilter != null) {
+          params.min_avg_rating = minRatingFilter;
+        }
+        if (minCheckinsFilter != null) {
+          params.min_active_checkins = minCheckinsFilter;
+        }
+        const response = await studySpotApi.search(params);
+        setSpots(response.data);
+      } else {
+        const response = await studySpotApi.list();
+        setSpots(response.data);
+      }
     } catch (err) {
       setError('Failed to fetch study spots');
       console.error('Error fetching spots:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const requestMyLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by your browser.');
+      return;
+    }
+    setLocationLoading(true);
+    setLocationError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLat(pos.coords.latitude);
+        setUserLon(pos.coords.longitude);
+        setUseMyLocation(true);
+        setLocationLoading(false);
+        // refetch with location filter
+        fetchSpots();
+      },
+      (err) => {
+        setLocationError('Unable to retrieve your location.');
+        setLocationLoading(false);
+        setUseMyLocation(false);
+      }
+    );
   };
 
   const filteredSpots = spots.filter(spot =>
@@ -148,6 +207,93 @@ const StudySpotList: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           />
+        </div>
+  <div className="flex items-center space-x-3 mt-3">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={requestMyLocation}
+              className={`px-3 py-1 rounded-md text-sm ${useMyLocation ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+              title="Use my current location (1km radius)"
+            >
+              {locationLoading ? 'Locating...' : useMyLocation ? 'Using my location' : 'Use my location'}
+            </button>
+            <button
+              onClick={async () => {
+                // clear location filter (update state)
+                setUseMyLocation(false);
+                setUserLat(null);
+                setUserLon(null);
+                setLocationError(null);
+                // Immediately fetch the full list (don't rely on state updates being applied sync)
+                try {
+                  setLoading(true);
+                  const resp = await studySpotApi.list();
+                  setSpots(resp.data);
+                } catch (err) {
+                  console.error('Failed to fetch spots when clearing location', err);
+                  setError('Failed to fetch study spots');
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              className="px-3 py-1 rounded-md text-sm bg-gray-100 text-gray-700"
+            >
+              Clear location
+            </button>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <label className="text-sm">Min avg rating:</label>
+            <select
+              value={minRatingFilter ?? ''}
+              onChange={(e) => {
+                const v = e.target.value;
+                setMinRatingFilter(v === '' ? null : Number(v));
+              }}
+              className="border rounded-md p-1 text-sm"
+            >
+              <option value="">Any</option>
+              <option value={1}>1+</option>
+              <option value={2}>2+</option>
+              <option value={3}>3+</option>
+              <option value={4}>4+</option>
+            </select>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <label className="text-sm">Min active check-ins:</label>
+            <select
+              value={minCheckinsFilter ?? ''}
+              onChange={(e) => {
+                const v = e.target.value;
+                setMinCheckinsFilter(v === '' ? null : Number(v));
+              }}
+              className="border rounded-md p-1 text-sm"
+            >
+              <option value="">Any</option>
+              <option value={10}>10+</option>
+              <option value={20}>20+</option>
+              <option value={50}>50+</option>
+            </select>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <label className="text-sm">Radius:</label>
+            <select
+              value={radiusKm}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                setRadiusKm(v);
+              }}
+              className="border rounded-md p-1 text-sm"
+            >
+              <option value={0.5}>0.5 km</option>
+              <option value={1}>1 km</option>
+              <option value={2}>2 km</option>
+              <option value={5}>5 km</option>
+            </select>
+          </div>
+          {locationError && <p className="text-red-500 text-sm">{locationError}</p>}
         </div>
       </div>
 

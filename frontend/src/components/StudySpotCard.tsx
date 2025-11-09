@@ -17,6 +17,13 @@ const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails, onWr
   const [spotActiveCheckins, setSpotActiveCheckins] = useState(spot.active_checkins);
 
   useEffect(() => {
+    // If backend already provided avg_rating (from search), use it and skip fetching reviews
+    if (typeof spot.avg_rating === 'number') {
+      setAvgRating(spot.avg_rating);
+      // Can't know review count from spot.avg_rating alone; leave reviewCount as-is (0)
+      return;
+    }
+
     const fetchReviews = async () => {
       try {
         const response = await reviewApi.listBySpot(spot.id);
@@ -103,22 +110,28 @@ const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails, onWr
 
               <div className="flex items-center text-sm text-gray-500">
                 <StarIcon className="h-4 w-4 text-yellow-400 mr-1" />
-                {reviewCount > 0 ? (
-                  <> <span>{avgRating?.toFixed(1)}</span>
-                    <span className="ml-1">({reviewCount} reviews)</span>
-                  </>
-                ) : (
-                  <span>No reviews</span>
-                )}
+                  {typeof spot.avg_rating === 'number' || reviewCount > 0 ? (
+                    <>
+                      <span>{(spot.avg_rating ?? avgRating)?.toFixed(1)}</span>
+                      {reviewCount > 0 && <span className="ml-1">({reviewCount} reviews)</span>}
+                    </>
+                  ) : (
+                    <span>No reviews</span>
+                  )}
               </div>
             </div>
 
             <div className="text-sm text-gray-500 mt-2">
-              Currently Check-ins: <span className="font-medium">{spotActiveCheckins}</span>
+              Current Check-ins: <span className="font-medium">{spotActiveCheckins}</span>
             </div>
           </div>
         </div>
         
+          {typeof spot.distance_km === 'number' && (
+            <div className="px-6 pb-4">
+              <p className="text-sm text-gray-500">{spot.distance_km.toFixed(2)} km away</p>
+            </div>
+          )}
         <div className="mt-4 flex space-x-2">
           <button
             onClick={() => onViewDetails?.(spot)}

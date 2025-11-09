@@ -21,6 +21,8 @@ export interface StudySpot {
   longitude: number;
   status: 'pending' | 'active' | 'closed';
   description?: string;
+  avg_rating?: number;
+  distance_km?: number;
   active_checkins?: number;
 }
 
