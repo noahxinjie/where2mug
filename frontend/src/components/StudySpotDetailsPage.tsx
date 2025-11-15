@@ -85,6 +85,7 @@ const StudySpotDetailsPage: React.FC = () => {
     fetchReviews();
   }, [id]);
 
+
   if (loadingSpot) return <p>Loading spot...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
   if (!spot) return <p>Study spot not found</p>;
@@ -146,7 +147,7 @@ const StudySpotDetailsPage: React.FC = () => {
               {/* Review Content */}
               <div>
                 <p className="text-gray-800">{review.comment}</p>
-                <p className="text-sm text-gray-500 mt-1">By User {review.user_id}</p>
+                <p className="text-sm text-gray-500 mt-1">By {review.user_name ?? `User ${review.user_id}`}</p>
               </div>
 
               {/* Rating Badge */}

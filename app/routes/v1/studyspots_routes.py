@@ -236,8 +236,7 @@ def presign_photo_upload(spot_id: int, req: PresignRequest, db: Session = Depend
             aws_secret_access_key=secret_key,
         )
     except Exception as e:
-        print("[EXCEPTION] Failed to create S3 client:", repr(e), flush=True)
-        logger.exception("Failed to create S3 client")
+        logger.exception("Failed to create S3 client: %s", repr(e))
         raise HTTPException(status_code=500, detail=f"Failed to initialize S3 client: {str(e)}")
 
     try:
@@ -248,15 +247,12 @@ def presign_photo_upload(spot_id: int, req: PresignRequest, db: Session = Depend
             Conditions=[["content-length-range", 1, 5 * 1024 * 1024]],
             ExpiresIn=300,
         )
-        import json
-        print(json.dumps(presigned_post, indent=2))
+        logger.debug("Presigned POST data: %s", presigned_post)
     except Exception as e:
-        print(f"[EXCEPTION] Failed to generate presigned POST for key {key}: {repr(e)}", flush=True)
-        logger.exception("Failed to generate presigned POST for key %s", key)
+        logger.exception("Failed to generate presigned POST for key %s: %s", key, repr(e))
         # return a non-sensitive error to client while including error message for debugging
         raise HTTPException(status_code=500, detail=f"Failed to generate presigned upload data: {str(e)}")
-
-    print(f"[DEBUG] presigned POST generated for key={key}", flush=True)
+    logger.debug("presigned POST generated for key=%s", key)
     return {"presigned": presigned_post, "key": key, "url": f"https://{bucket}.s3.amazonaws.com/{key}"}
 
 

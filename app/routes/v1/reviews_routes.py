@@ -41,7 +41,24 @@ def create_review(payload: ReviewCreate, db: Session = Depends(get_db)):
     db.add(new_review)
     db.commit()
     db.refresh(new_review)
-    return new_review
+
+    # Include reviewer display name in response
+    user_name = None
+    if new_review.user:
+        user_name = getattr(new_review.user, "name", None)
+    else:
+        u = db.query(User).filter(User.id == new_review.user_id).first()
+        user_name = getattr(u, "name", None) if u else None
+
+    return {
+        "id": new_review.id,
+        "studyspot_id": new_review.studyspot_id,
+        "user_id": new_review.user_id,
+        "rating": new_review.rating,
+        "comment": new_review.comment,
+        "created_at": new_review.created_at,
+        "user_name": user_name,
+    }
 
 @router.get("/", response_model=list[ReviewOut])
 def list_reviews(
@@ -49,13 +66,29 @@ def list_reviews(
     limit: int = Query(100, ge=1, le=1000),
     offset: int = Query(0, ge=0),
 ):
-    return (
+    reviews = (
         db.query(Review)
         .order_by(Review.id.desc())
         .offset(offset)
         .limit(limit)
         .all()
     )
+
+    out = []
+    for r in reviews:
+        user_name = getattr(r.user, "name", None) if r.user else None
+        out.append(
+            {
+                "id": r.id,
+                "studyspot_id": r.studyspot_id,
+                "user_id": r.user_id,
+                "rating": r.rating,
+                "comment": r.comment,
+                "created_at": r.created_at,
+                "user_name": user_name,
+            }
+        )
+    return out
 
 @router.get("/by-spot/{spot_id}", response_model=list[ReviewOut])
 def list_reviews_for_spot(
@@ -68,7 +101,7 @@ def list_reviews_for_spot(
     if not db.query(StudySpot).filter(StudySpot.id == spot_id).first():
         raise HTTPException(status_code=404, detail="Study spot not found")
 
-    return (
+    reviews = (
         db.query(Review)
         .where(Review.studyspot_id == spot_id)
         .order_by(Review.id.desc())
@@ -76,6 +109,21 @@ def list_reviews_for_spot(
         .limit(limit)
         .all()
     )
+    out = []
+    for r in reviews:
+        user_name = getattr(r.user, "name", None) if r.user else None
+        out.append(
+            {
+                "id": r.id,
+                "studyspot_id": r.studyspot_id,
+                "user_id": r.user_id,
+                "rating": r.rating,
+                "comment": r.comment,
+                "created_at": r.created_at,
+                "user_name": user_name,
+            }
+        )
+    return out
 
 @router.get("/by-user/{user_id}", response_model=list[ReviewOut])
 def list_reviews_by_user(
@@ -88,7 +136,7 @@ def list_reviews_by_user(
     if not db.query(User).filter(User.id == user_id).first():
         raise HTTPException(status_code=404, detail="User not found")
 
-    return (
+    reviews = (
         db.query(Review)
         .where(Review.user_id == user_id)
         .order_by(Review.id.desc())
@@ -96,6 +144,21 @@ def list_reviews_by_user(
         .limit(limit)
         .all()
     )
+    out = []
+    for r in reviews:
+        user_name = getattr(r.user, "name", None) if r.user else None
+        out.append(
+            {
+                "id": r.id,
+                "studyspot_id": r.studyspot_id,
+                "user_id": r.user_id,
+                "rating": r.rating,
+                "comment": r.comment,
+                "created_at": r.created_at,
+                "user_name": user_name,
+            }
+        )
+    return out
 
 @router.put("/{review_id}", response_model=ReviewOut)
 def update_review(
@@ -119,7 +182,17 @@ def update_review(
         setattr(review, k, v)
     db.commit()
     db.refresh(review)
-    return review
+
+    user_name = getattr(review.user, "name", None) if review.user else None
+    return {
+        "id": review.id,
+        "studyspot_id": review.studyspot_id,
+        "user_id": review.user_id,
+        "rating": review.rating,
+        "comment": review.comment,
+        "created_at": review.created_at,
+        "user_name": user_name,
+    }
 
 @router.delete("/{review_id}", status_code=204)
 def delete_review(review_id: int = Path(..., ge=1), db: Session = Depends(get_db)):

@@ -17,6 +17,8 @@ class ReviewCreate(ReviewBase):
 class ReviewOut(ReviewBase):
     id: int
     created_at: datetime
+    # Optional reviewer display name (populated by backend when available)
+    user_name: str | None = None
 
     class Config:
         from_attributes = True
