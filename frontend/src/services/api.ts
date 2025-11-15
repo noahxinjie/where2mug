@@ -26,6 +26,10 @@ export const studySpotApi = {
   // Search with optional location/radius and min_avg_rating
   search: (params: { lat?: number; lon?: number; radius_km?: number; min_avg_rating?: number }) =>
     api.get<StudySpot[]>('/studyspots/search', { params }),
+  presignPhoto: (spotId: number | string, payload: { filename: string; content_type: string }) =>
+    api.post(`/studyspots/${spotId}/photos/presign`, payload),
+  notifyPhoto: (spotId: number | string, payload: { key: string; url: string; is_primary?: boolean }) =>
+    api.post(`/studyspots/${spotId}/photos`, payload),
 };
 
 // Review API
