@@ -24,6 +24,15 @@ export interface StudySpot {
   avg_rating?: number;
   distance_km?: number;
   active_checkins?: number;
+  photos?: Photo[];
+}
+
+export interface Photo {
+  id: number;
+  url: string;
+  key: string;
+  is_primary: boolean;
+  created_at: string;
 }
 
 export interface StudySpotCreate {

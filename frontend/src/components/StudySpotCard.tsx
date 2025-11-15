@@ -83,6 +83,18 @@ const StudySpotCard: React.FC<StudySpotCardProps> = ({ spot, onViewDetails, onWr
 
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+      {/* Thumbnail area: show latest uploaded image (backend returns photos ordered newest-first) */}
+      <div className="w-full h-40 bg-gray-100">
+        {spot.photos && spot.photos.length > 0 ? (
+          <img
+            src={spot.photos[0].url}
+            alt={spot.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400">No image</div>
+        )}
+      </div>
       <div className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">

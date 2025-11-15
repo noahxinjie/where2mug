@@ -11,6 +11,7 @@ const StudySpotDetailsPage: React.FC = () => {
   const [loadingSpot, setLoadingSpot] = useState(false);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,6 +32,39 @@ const StudySpotDetailsPage: React.FC = () => {
 
     fetchSpot();
   }, [id]);
+
+  const handleFileUpload = async (file?: File) => {
+    if (!file || !id) return;
+    try {
+      setUploading(true);
+      // Request presigned data
+      const presignResp = await studySpotApi.presignPhoto(Number(id), { filename: file.name, content_type: file.type });
+      const { presigned, key, url } = presignResp.data;
+
+      // Build form data from presigned fields
+      const form = new FormData();
+      Object.entries(presigned.fields).forEach(([k, v]) => form.append(k, v as string));
+      form.append('file', file);
+
+      // Upload directly to S3
+      const uploadResult = await fetch(presigned.url, { method: 'POST', body: form });
+      if (!uploadResult.ok) {
+        throw new Error('Upload to S3 failed');
+      }
+
+      // Notify backend so it can persist metadata
+      await studySpotApi.notifyPhoto(Number(id), { key, url, is_primary: false });
+
+      // Refresh spot to show new photo
+      const refreshed = await studySpotApi.get(id);
+      setSpot(refreshed.data);
+    } catch (err) {
+      console.error('Failed to upload photo', err);
+      setError('Failed to upload photo');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   // Fetch reviews for the spot
   useEffect(() => {
@@ -70,6 +104,35 @@ const StudySpotDetailsPage: React.FC = () => {
         Location: {spot.latitude.toFixed(4)}, {spot.longitude.toFixed(4)}
       </p>
       <p className="text-gray-500 text-sm mb-4">Status: {spot.status}</p>
+
+      <div className="mb-4">
+        <h3 className="text-lg font-medium mb-2">Photos</h3>
+        <div className="mb-2">
+          {spot.photos && spot.photos.length > 0 ? (
+            <div className="flex space-x-2 overflow-x-auto py-2">
+              {spot.photos.map((p) => (
+                <img key={p.id} src={p.url} alt={`photo-${p.id}`} className="w-48 h-36 object-cover rounded-md shadow-sm flex-shrink-0" />
+              ))}
+            </div>
+          ) : (
+            <div className="w-64 h-40 bg-gray-100 flex items-center justify-center text-gray-400 rounded-md">No photos yet</div>
+          )}
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <input
+            type="file"
+            accept="image/jpeg,image/png"
+            onChange={(e) => {
+              const f = e.target.files && e.target.files[0];
+              if (f) handleFileUpload(f);
+            }}
+          />
+          {uploading && <span className="text-sm text-gray-500">Uploading...</span>}
+        </div>
+
+        <p className="text-sm text-gray-500 mt-2">You can upload your own photo (jpeg/png file) of the place.</p>
+      </div>
 
       <h2 className="text-xl font-semibold mb-4">Reviews</h2>
       {loadingReviews ? (
